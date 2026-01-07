@@ -1,0 +1,71 @@
+version: '3'
+
+vars:
+  BINARY_NAME: urgent-reminder
+  BUILD_DIR: build
+
+tasks:
+  default:
+    desc: Build the binary
+    cmds:
+      - task: build
+
+  build:
+    desc: Build the binary for current platform
+    dir: .
+    cmds:
+      - mkdir -p {{.BUILD_DIR}}
+      - go build -o {{.BUILD_DIR}}/{{.BINARY_NAME}} .
+    sources:
+      - "**/*.go"
+    generates:
+      - "{{.BUILD_DIR}}/{{.BINARY_NAME}}"
+
+  install:
+    desc: Install the binary to $GOPATH/bin or /usr/local/bin
+    deps: [build]
+    cmds:
+      - |
+        if [ -n "$GOPATH" ]; then
+          install -m 0755 {{.BUILD_DIR}}/{{.BINARY_NAME}} $GOPATH/bin/{{.BINARY_NAME}}
+        else
+          install -m 0755 {{.BUILD_DIR}}/{{.BINARY_NAME}} /usr/local/bin/{{.BINARY_NAME}}
+        fi
+      - echo "✓ Installed {{.BINARY_NAME}} successfully!"
+
+  install-local:
+    desc: Install binary and setup shell integration
+    deps: [build]
+    cmds:
+      - |
+        if [ -n "$GOPATH" ]; then
+          install -m 0755 {{.BUILD_DIR}}/{{.BINARY_NAME}} $GOPATH/bin/{{.BINARY_NAME}}
+        else
+          install -m 0755 {{.BUILD_DIR}}/{{.BINARY_NAME}} /usr/local/bin/{{.BINARY_NAME}}
+        fi
+      - echo "✓ Installed {{.BINARY_NAME}} successfully!"
+      - "{{.BUILD_DIR}}/{{.BINARY_NAME}} setup"
+
+  clean:
+    desc: Remove build artifacts
+    cmds:
+      - rm -rf {{.BUILD_DIR}}
+    sources:
+      - "{{.BUILD_DIR}}/{{.BINARY_NAME}}"
+
+  dev:
+    desc: Build and run in development mode
+    cmds:
+      - go run .
+    interactive: true
+
+  lint:
+    desc: Run gofmt and go vet
+    cmds:
+      - gofmt -l .
+      - go vet ./...
+
+  test:
+    desc: Run tests
+    cmds:
+      - go test -v ./...
