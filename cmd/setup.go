@@ -13,7 +13,7 @@ const (
 	zshIntegration = `# Urgent Reminder Integration
 urgent_reminder_list() {
     if command -v urgent-reminder &>/dev/null; then
-        urgent-reminder list
+        urgent-reminder list 2>/dev/null | grep -q "Total:" && urgent-reminder list
     fi
 }
 urgent_reminder_list
@@ -22,7 +22,7 @@ urgent_reminder_list
 	bashIntegration = `# Urgent Reminder Integration
 urgent_reminder_list() {
     if command -v urgent-reminder &>/dev/null; then
-        urgent-reminder list
+        urgent-reminder list 2>/dev/null | grep -q "Total:" && urgent-reminder list
     fi
 }
 urgent_reminder_list
